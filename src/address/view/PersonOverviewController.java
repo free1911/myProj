@@ -1,6 +1,7 @@
 package address.view;
 
 import address.MainApp;
+import address.Util.DateUtil;
 import javafx.fxml.FXML;
 import address.model.Person;
 import javafx.scene.control.Label;
@@ -61,6 +62,7 @@ public class PersonOverviewController {
             streetLabel.setText(person.getStreet());
             postalCodeLabel.setText(Integer.toString(person.getPostalCode()));
             cityLabel.setText(person.getCity());
+            birthdayLabel.setText(DateUtil.format(person.getBirthday()));
         }
         else{
             firstnameLabel.setText("");
@@ -68,6 +70,7 @@ public class PersonOverviewController {
             streetLabel.setText("");
             postalCodeLabel.setText("");
             cityLabel.setText("");
+            birthdayLabel.setText("");
         }
     }
 
@@ -76,6 +79,38 @@ public class PersonOverviewController {
         int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
             personTable.getItems().remove(selectedIndex);
+        } else {
+            // Nothing selected.
+            Dialogs.create()
+                    .title("No Selection")
+                    .masthead("No Person Selected")
+                    .message("Please select a person in the table.")
+                    .showWarning();
+        }
+    }
+
+    @FXML
+    private void handleNewPerson() {
+        Person tempPerson = new Person("","");
+        boolean okClicked = mainApp.showPersonEditDialog(tempPerson);
+        if (okClicked) {
+            mainApp.getPersonData().add(tempPerson);
+        }
+    }
+
+    /**
+     * Called when the user clicks the edit button. Opens a dialog to edit
+     * details for the selected person.
+     */
+    @FXML
+    private void handleEditPerson() {
+        Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
+        if (selectedPerson != null) {
+            boolean okClicked = mainApp.showPersonEditDialog(selectedPerson);
+            if (okClicked) {
+                showPersonDetails(selectedPerson);
+            }
+
         } else {
             // Nothing selected.
             Dialogs.create()
